@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe Game</title>
+  <style>
+    body {
+      font-family: Avenir, Helvetica, Arial, sans-serif;
+      text-align: center;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #app {
+      margin-top: 60px;
+    }
+
+    .game-board {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .row {
+      display: flex;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      border: 1px inset #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .cell:hover {
+      background-color: #f0f0f0;
+    }
+    button{
+        width: 100px;
+        padding: 7px;
+        margin-top: 20px;
+        border: none;
+        cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+<script>
+  Vue.component('game-board', {
+    template: `
+    <div class="game-board">
+    <p v-if="!gameOver">It's {{ currentPlayer }}'s turn</p>
+    <div v-for="(row, rowIndex) in board" :key="rowIndex" class="row">
+      <div v-for="(cell, colIndex) in row" :key="colIndex" class="cell" @click="makeMove(rowIndex, colIndex)">
+        {{ cell }}
+      </div>
+    </div>
+    <button v-if="gameOver" @click="restartGame">Restart Game</button>
+  </div>
+    `,
+    data() {
+    return {
+      board: [
+        ['', '', ''],
+        ['', '', ''],
+        ['', '', '']
+      ],
+      currentPlayer: 'X',
+      gameOver: false
+    };
+  },
+  methods: {
+    makeMove(row, col) {
+      if (!this.gameOver && this.board[row][col] === '') {
+        this.$set(this.board[row], col, this.currentPlayer);
+
+        // Check for a win or draw after updating the board
+        if (this.checkWin()) {
+          this.gameOver = true;
+          setTimeout(() => {
+            alert(`${this.currentPlayer} wins!`);
+          }, 0);
+        } else if (this.checkDraw()) {
+          this.gameOver = true;
+          setTimeout(() => {
+            alert('It\'s a draw!');
+          }, 0);
+        } else {
+          // Update current player only if the game is not over
+          this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+        }
+      }
+    },
+      checkWin() {
+        for (let i = 0; i < 3; i++) {
+          if (
+            this.board[i][0] === this.currentPlayer &&
+            this.board[i][1] === this.currentPlayer &&
+            this.board[i][2] === this.currentPlayer
+          ) {
+            return true; // Row win
+          }
+          if (
+            this.board[0][i] === this.currentPlayer &&
+            this.board[1][i] === this.currentPlayer &&
+            this.board[2][i] === this.currentPlayer
+          ) {
+            return true; // Column win
+          }
+        }
+        if (
+          this.board[0][0] === this.currentPlayer &&
+          this.board[1][1] === this.currentPlayer &&
+          this.board[2][2] === this.currentPlayer
+        ) {
+          return true; // Diagonal win
+        }
+        if (
+          this.board[0][2] === this.currentPlayer &&
+          this.board[1][1] === this.currentPlayer &&
+          this.board[2][0] === this.currentPlayer
+        ) {
+          return true; // Diagonal win
+        }
+        return false;
+      },
+      checkDraw() {
+        for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 3; j++) {
+            if (this.board[i][j] === '') {
+              return false; // Board is not full
+            }
+          }
+        }
+        return true; // Board is full (draw)
+      },
+      restartGame() {
+        this.board = [
+          ['', '', ''],
+          ['', '', ''],
+          ['', '', '']
+        ];
+        this.currentPlayer = 'X';
+        this.gameOver = false;
+      }
+    }
+  });
+
+  // App component
+  new Vue({
+    el: '#app',
+    template: '<game-board />'
+  });
+</script>
+
+</body>
+</html>
